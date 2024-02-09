@@ -1,12 +1,12 @@
 {
   "build": {
-    "beforeDevCommand": "pnpm dev",
-    "beforeBuildCommand": "pnpm build",
+    "beforeDevCommand": "pnpm dev:vite",
+    "beforeBuildCommand": "pnpm build:vite",
     "devPath": "http://localhost:1420",
     "distDir": "../dist"
   },
   "package": {
-    "productName": "sqlmagik",
+    "productName": "Magic Elepha",
     "version": "0.0.0"
   },
   "tauri": {
@@ -36,9 +36,9 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "sqlmagik",
-        "width": 800,
-        "height": 600
+        "title": "Magic Elephant",
+        "width": 1000,
+        "height": 1000
       }
     ]
   }

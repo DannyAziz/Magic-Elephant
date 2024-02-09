@@ -1,25 +1,49 @@
 {
-  "name": "sqlmagik",
+  "name": "magic-elephant",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
+    "dev": "tauri dev",
+    "dev:vite": "vite",
+    "build:vite": "tsc && vite build",
+    "preview:vite": "vite preview",
     "tauri": "tauri"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.3.2",
+    "@radix-ui/react-accordion": "^1.1.2",
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-menubar": "^1.0.4",
+    "@radix-ui/react-scroll-area": "^1.0.5",
+    "@radix-ui/react-separator": "^1.0.3",
+    "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-switch": "^1.0.3",
+    "@tauri-apps/api": "^1.5.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "openai": "^4.24.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@tauri-apps/api": "^1.5.2"
+    "react-hook-form": "^7.49.2",
+    "react-router-dom": "^6.21.0",
+    "tailwind-merge": "^2.1.0",
+    "tailwindcss-animate": "^1.0.7",
+    "tauri-plugin-store-api": "github:tauri-apps/tauri-plugin-store#v1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^1.5.7",
+    "@types/node": "^20.10.4",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
     "typescript": "^5.0.2",
-    "vite": "^4.4.4",
-    "@tauri-apps/cli": "^1.5.7"
+    "vite": "^4.4.4"
   }
 }

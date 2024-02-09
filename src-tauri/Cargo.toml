@@ -1,5 +1,5 @@
 [package]
-name = "sqlmagik"
+name = "magic_elephant"
 version = "0.0.0"
 description = "A Tauri App"
 authors = ["you"]
@@ -16,6 +16,11 @@ tauri-build = { version = "1.5", features = [] }
 tauri = { version = "1.5", features = ["shell-open"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+postgres = { version = "0.19", features = ["with-chrono-0_4", "with-serde_json-1", "with-uuid-0_8"] }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "0.8", features = ["serde"] }
+indexmap = { version = "1.7.0", features = ["serde-1"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
