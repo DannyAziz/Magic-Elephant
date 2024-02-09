@@ -20,3 +20,4 @@ Magic Elephant is a Postgres client app with LLM magic to help craft your SQL qu
 - [ ] View table data
 - [ ] View query history
 - [ ] Save queries
+- [ ] Improved UI
