@@ -55,7 +55,9 @@ const Connections = () => {
                   <Button
                     variant="outline"
                     onClick={() =>
-                      navigate(`/connection?${connection.connectionString}`)
+                      navigate(
+                        `/connection?connectionString=${connection.connectionString}`
+                      )
                     }
                   >
                     Connect

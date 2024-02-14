@@ -18,6 +18,19 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
@@ -37,6 +50,8 @@ import OpenAI from "openai";
 
 import { invoke } from "@tauri-apps/api/tauri";
 import { Schema } from "@/lib/types";
+import { useStoreValue } from "@/lib/useStore";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY, // This is the default and can be omitted
@@ -49,6 +64,16 @@ interface QueryResult {
 }
 
 const Connection = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const connectionString = queryParams.get("connectionString");
+  const cachedTableDefinitions = useStoreValue(
+    ".connections.dat",
+    `tableDefinitions.${connectionString}`
+  ) as Schema[];
+  const [tableDefinitions, setTableDefinitions] = useState<Schema[]>(
+    cachedTableDefinitions
+  );
   const [mode, setMode] = useState<"query" | "tableView">("query");
 
   const [generatingSQL, setGeneratingSQL] = useState<boolean>(false);
@@ -57,10 +82,12 @@ const Connection = () => {
   const [userInput, setUserInput] = useState<string>("");
   const [sqlInput, setSqlInput] = useState<string>("");
 
-  const [tableDefinitions, setTableDefinitions] = useState<Schema[]>();
   const [tableData, setTableData] = useState<QueryResult>();
-  // TODO: Running query makes a call to the Rust backend to get the results
   // TODO: Custom header based on SQL output
+
+  const [showAlertDialog, setShowAlertDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const navigate = useNavigate();
 
   const generateSQL = async () => {
     setSqlInput("");
@@ -76,8 +103,7 @@ const Connection = () => {
       tableDefinitions
         .filter(
           (schema) =>
-            schema.name !== "pg_catalog" &&
-            schema.name !== "information_schema",
+            schema.name !== "pg_catalog" && schema.name !== "information_schema"
         )
         .forEach((schema: Schema) => {
           messages.push({
@@ -136,8 +162,7 @@ Output:\n`,
     try {
       const results = (await invoke("pg_query", {
         query: sqlInput,
-        connectionString:
-          "postgres://postgres:postgres@localhost:5432/postgres",
+        connectionString,
       })) as string;
       // Parse the JSON string into an object of type QueryResult
       const parsedResults: {
@@ -146,23 +171,57 @@ Output:\n`,
       } = JSON.parse(results);
       setTableData(parsedResults);
     } catch (error) {
-      console.error("Error executing query:", error);
+      setErrorMessage(error as string);
     }
     setRunningQuery(false);
   };
 
-  useEffect(() => {
-    (async () => {
+  const getTableDefinitions = async () => {
+    try {
       const tables = (await invoke("pg_get_tables", {
-        connectionString:
-          "postgres://postgres:postgres@localhost:5432/postgres",
+        connectionString,
       })) as Schema[];
       setTableDefinitions(tables);
-    })();
+    } catch (error) {
+      console.error("Error getting table definitions:", error);
+      setShowAlertDialog(true);
+    }
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      getTableDefinitions();
+    }, 100);
   }, []);
 
   return (
     <div className="h-screen overflow-hidden">
+      <AlertDialog open={showAlertDialog} onOpenChange={setShowAlertDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>There was an error</AlertDialogTitle>
+            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                navigate("/");
+              }}
+            >
+              Quit
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowAlertDialog(false);
+                getTableDefinitions();
+              }}
+            >
+              Retry
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Menubar className="sticky top-0 z-10 h-9 w-full">
         <MenubarMenu>
           <MenubarTrigger>File</MenubarTrigger>
