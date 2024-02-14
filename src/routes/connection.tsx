@@ -53,6 +53,8 @@ import { Schema } from "@/lib/types";
 import { useStoreValue } from "@/lib/useStore";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { Store } from "tauri-plugin-store-api";
+
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY, // This is the default and can be omitted
   dangerouslyAllowBrowser: true,
@@ -83,6 +85,7 @@ const Connection = () => {
   const [sqlInput, setSqlInput] = useState<string>("");
 
   const [tableData, setTableData] = useState<QueryResult>();
+  const [fetchedTableData, setFetchedTableData] = useState<boolean>(false);
   // TODO: Custom header based on SQL output
 
   const [showAlertDialog, setShowAlertDialog] = useState(false);
@@ -178,10 +181,13 @@ Output:\n`,
 
   const getTableDefinitions = async () => {
     try {
+      console.log("Getting table definitions");
       const tables = (await invoke("pg_get_tables", {
         connectionString,
       })) as Schema[];
-      setTableDefinitions(tables);
+      const store = new Store(".connections.dat");
+      await store.set(`tableDefinitions.${connectionString}`, tables);
+      setFetchedTableData(true);
     } catch (error) {
       console.error("Error getting table definitions:", error);
       setShowAlertDialog(true);
@@ -189,10 +195,16 @@ Output:\n`,
   };
 
   useEffect(() => {
-    setTimeout(() => {
-      getTableDefinitions();
-    }, 100);
-  }, []);
+    setTableDefinitions(cachedTableDefinitions);
+  }, [cachedTableDefinitions]);
+
+  useEffect(() => {
+    console.log("fetchedTableData", fetchedTableData);
+    if (fetchedTableData) {
+      return;
+    }
+    getTableDefinitions();
+  }, [fetchedTableData]);
 
   return (
     <div className="h-screen overflow-hidden">
